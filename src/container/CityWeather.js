@@ -2,9 +2,28 @@ import React, {Component} from "react";
 import {
     StyleSheet,
     View,
+    Dimensions,
     StatusBar
 } from "react-native";
-import {Container, Content, Header, Title, Body, Item, Left, Input, Icon, Button, Text} from 'native-base';
+import {
+    Container,
+    Content,
+    Header,
+    Grid,
+    Col,
+    Row,
+    Title,
+    Body,
+    Item,
+    Left,
+    Right,
+    Input,
+    Icon,
+    Button,
+    Text
+} from 'native-base';
+
+let {width} = Dimensions.get("window");
 
 const styles = StyleSheet.create({
     container: {
@@ -13,14 +32,24 @@ const styles = StyleSheet.create({
         alignItems: "center",
         justifyContent: "flex-start"
     },
-    simpleText: {
-        fontSize: 24
+    firstColumn: {
+        alignItems: 'flex-start',
+        justifyContent: "flex-start",
+        width: 0.4 * width,
+    },
+    secondColumn: {
+        alignItems: 'center',
+        justifyContent: "center",
+    },
+    textColumn: {
+        fontSize: 24,
     },
 });
 
 export default class CityWeather extends Component {
     constructor(props) {
         super(props);
+        this.weather = this.props.navigation.state.params.city;
         this.state = {
             text: "",
         };
@@ -33,14 +62,6 @@ export default class CityWeather extends Component {
     componentWillMount() {
         StatusBar.setHidden(true);
     }
-
-    componentDidMount() {
-        this.getWeatherInfo();
-    }
-
-    getWeatherInfo = () => {
-
-    };
 
     goBack = () => {
         this.props.navigation.goBack();
@@ -56,11 +77,63 @@ export default class CityWeather extends Component {
                         </Button>
                     </Left>
                     <Body>
-                    <Title>Weather {this.props.navigation.state.params.city.city}</Title>
+                    <Title>Weather {this.props.navigation.state.params.city.name}</Title>
                     </Body>
                 </Header>
                 <Content>
-                    <Text>{JSON.stringify(this.props)}</Text>
+                    <Grid>
+                        <Row>
+                            <Col style={styles.firstColumn}>
+                                <Text style={styles.textColumn}>Country</Text>
+                            </Col>
+                            <Col style={styles.secondColumn}>
+                                <Text style={styles.textColumn}>{this.weather.sys.country}</Text>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col style={styles.firstColumn}>
+                                <Text style={styles.textColumn}>City</Text>
+                            </Col>
+                            <Col style={styles.secondColumn}>
+                                <Text style={styles.textColumn}>{this.weather.name}</Text>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col style={styles.firstColumn}>
+                                <Text style={styles.textColumn}>{this.weather.weather[0].main}</Text>
+                            </Col>
+                            <Col style={styles.secondColumn}>
+                                <Text style={styles.textColumn}>{this.weather.weather[0].description}</Text>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col style={styles.firstColumn}>
+                                <Text style={styles.textColumn}>Temperature</Text>
+                            </Col>
+                            <Col style={styles.secondColumn}>
+                                <Text
+                                    style={styles.textColumn}>{(this.weather.main.temp > 150) ? this.weather.main.temp - 273.15 : this.weather.main.temp} &#x2103;</Text>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col style={styles.firstColumn}>
+                                <Text style={styles.textColumn}>Pressure</Text>
+                            </Col>
+                            <Col style={styles.secondColumn}>
+                                <Text
+                                    style={styles.textColumn}>{Math.round(this.weather.main.pressure * 100 * 760 / 101325)}
+                                    mmHg</Text>
+                            </Col>
+                        </Row>
+                        <Row>
+                            <Col style={styles.firstColumn}>
+                                <Text style={styles.textColumn}>Wind</Text>
+                            </Col>
+                            <Col style={styles.secondColumn}>
+                                <Text style={styles.textColumn}>{this.weather.wind.speed} m/s</Text>
+                            </Col>
+                        </Row>
+                    </Grid>
                 </Content>
             </Container>
         );
