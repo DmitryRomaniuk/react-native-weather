@@ -11,6 +11,7 @@ import {
     AsyncStorage,
     StatusBar
 } from "react-native";
+import { connect } from 'react-redux';
 import {
     Container,
     Header,
@@ -28,6 +29,13 @@ import {
     Input,
     Text
 } from 'native-base';
+import {
+    welcomePageLoaded,
+    getPrevPosition,
+    getLocation,
+    getWeatherCities,
+    positionAndWeatherList
+} from "../actions/homePageActions";
 
 
 let {width} = Dimensions.get("window");
@@ -103,27 +111,7 @@ class HomeScreen extends Component {
     constructor(props) {
         super(props);
         this.state = {
-            text: "",
-            coordinates: {
-                latitude: "",
-                longitude: "",
-                accuracy: ""
-            },
-            error: "",
-            weather: [
-                {name: "Moskow", id: 524901, main: {}},
-                {name: "London", id: 2643743, main: {}},
-                {name: "Paris", id: 2988507, main: {}},
-                {name: "New York", id: 5128581, main: {}},
-                {name: "Berlin", id: 2950159, main: {}},
-                {name: "Roma", id: 3169070, main: {}},
-                {name: "Beijing", id: 1816670, main: {}},
-                {name: "Minsk", id: 625144, main: {}},
-                {name: "Sydney", id: 2147714, main: {}},
-            ],
-            userPosition: {},
-            prevPosition: {},
-            isLoaded: false
+            text: ''
         };
     }
 
@@ -136,104 +124,27 @@ class HomeScreen extends Component {
     }
 
     componentDidMount() {
-        AsyncStorage.getItem('@PositionStore:position').then(res => {
-            if (res !== null) {
-                try {
-                    this.setState({prevPosition: JSON.parse(res)});
-                } catch (error) {
-                    console.warn(`error JSON parse from AsyncStorage ${error}`);
-                }
-            }
-        });
-        Promise.all([this.location(), this.getWeatherCities()])
-            .then(() => {
-                let lat = this.state.userPosition.coord.lat;
-                let lon = this.state.userPosition.coord.lon;
-                let cityNearUser;
-                this.state.weather.reduce((acc, city, i) => {
-                    let newAcc = Math.sqrt((city.coord.lat - lat) ** 2 + (city.coord.lon - lon) ** 2);
-                    if (newAcc < acc) {
-                        cityNearUser = i;
-                        return newAcc
-                    }
-                    return acc;
-                }, 1000);
-                let newArr = [...this.state.weather];
-                newArr.splice(cityNearUser, 1);
-                newArr.unshift(this.state.weather[cityNearUser]);
-                let newStateWeather = [...newArr];
-                this.setState({weather: newStateWeather})
-            })
+        this.props.getPrevPosition();
+        const listCitiesIdFromState = this.props.homePageStore.weather.map(city => city.id).join(',');
+        this.props.positionAndWeatherList(listCitiesIdFromState);
     }
 
     onPressItem = city => this.props.navigation.navigate('City', {city});
 
     onPressCurrentPosition = () => {
-        this.props.navigation.navigate('City', {city: this.state.userPosition});
-    };
-
-    getWeatherCities = () => {
-        const listFromState = this.state.weather.map(city => city.id).join(',');
-        const url = `http://api.openweathermap.org/data/2.5/group?id=${listFromState}&units=metric&appid=5fa0a1e7c0a14457e91deec1377620b6`;
-        return fetch(url)
-            .then(res => res.json())
-            .then(res => {
-                this.setState({weather: res.list});
-            })
-            .catch(e => console.error(e));
-    };
-
-    location = () => {
-        let options = {
-            enableHighAccuracy: true,
-            timeout: 5000,
-            maximumAge: 0
-        };
-
-        let success = resolve => pos => {
-            const crd = pos.coords;
-            console.log("Your current position is:");
-            console.log(`Latitude : ${crd.latitude}`);
-            console.log(`Longitude: ${crd.longitude}`);
-            console.log(`More or less ${crd.accuracy} meters.`);
-            this.setState({coordinates: crd});
-            const url = `http://api.openweathermap.org/data/2.5/weather?lat=${crd.latitude}&lon=${crd.longitude}&appid=5fa0a1e7c0a14457e91deec1377620b6`;
-            return fetch(url)
-                .then(res => res.json())
-                .then(res => {
-                    this.setState({userPosition: res});
-                    return AsyncStorage.setItem('@PositionStore:position', JSON.stringify(res));
-                })
-                .then(() => {
-                    resolve();
-                })
-                .catch(e => console.error(e));
-        };
-
-        let error = reject => err => {
-            console.warn(`ERROR(${err.code}): ${err.message}`);
-            this.setState({error: `App can't get your position`});
-            reject(`ERROR(${err.code}): ${err.message}`);
-        };
-
-        return new Promise((resolve, reject) => {
-            navigator.geolocation.getCurrentPosition(success(resolve), error(reject), options);
-        })
-    };
-
-    pageLoaded = () => {
-        this.setState({isLoaded: true});
+        this.props.navigation.navigate('City', {city: this.props.homePageStore.userPosition});
     };
 
     getFilteredCity = () => {
-        return [...this.state.weather].filter(e => {
+        return [...this.props.homePageStore.weather].filter(e => {
             return (this.state.text) ? e.name.toLocaleLowerCase().includes(this.state.text.toLocaleLowerCase()) : true;
         })
     };
 
     render() {
         let page;
-        if (this.state.isLoaded) {
+        console.log(this.props.homePageStore);
+        if (this.props.homePageStore.isLoaded) {
             page = (
                 <Container style={styles.container}>
                     <Item>
@@ -241,11 +152,11 @@ class HomeScreen extends Component {
                         <Input placeholder="Sort by name" onChangeText={text => this.setState({text})}/>
                     </Item>
                     <Text style={styles.locationUserText} onPress={this.onPressCurrentPosition}>If your location
-                        is: {this.state.userPosition.name}? Click here!</Text>
+                        is: {this.props.homePageStore.userPosition.name}? Click here!</Text>
                     <Text style={styles.simpleText} onPress={this.onPressCurrentPosition}>Your previous position
-                        was: {(this.state.prevPosition.name) ? this.state.prevPosition.name : ''}</Text>
-                    {this.state.error ? (
-                        <Text style={styles.simpleText}>Error position {this.state.error}</Text>
+                        was: {(this.props.homePageStore.prevPosition.name) ? this.props.homePageStore.prevPosition.name : ''}</Text>
+                    {this.props.homePageStore.error ? (
+                        <Text style={styles.simpleText}>Error position {this.props.homePageStore.error}</Text>
                     ) : null}
                     <Text style={styles.headerList}>
                         First on the list is the city closest to you:
@@ -273,7 +184,7 @@ class HomeScreen extends Component {
                             "https://www.ethode.com/contentAsset/raw-data/84e3be24-58bc-499c-9d50-f8088158f11a/image"
                     }}
                     style={{marginTop: 20, backgroundColor: "#222222"}}
-                    onLoadEnd={this.pageLoaded}
+                    onLoadEnd={this.props.welcomePageLoaded}
                 />
             );
         }
@@ -281,4 +192,8 @@ class HomeScreen extends Component {
     }
 }
 
-export default HomeScreen;
+const mapStateToProps = state => ({
+    homePageStore: state.app,
+});
+
+export default connect(mapStateToProps, { welcomePageLoaded, getLocation, getWeatherCities, getPrevPosition, positionAndWeatherList })(HomeScreen);

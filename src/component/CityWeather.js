@@ -50,9 +50,6 @@ export default class CityWeather extends Component {
     constructor(props) {
         super(props);
         this.weather = this.props.navigation.state.params.city;
-        this.state = {
-            text: "",
-        };
     }
 
     static navigationOptions = {
