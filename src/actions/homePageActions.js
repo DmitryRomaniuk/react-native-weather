@@ -5,10 +5,12 @@ export const GET_PREV_POSITION = 'GET_PREV_POSITION';
 export const WELCOME_PAGE_LOADED = 'WELCOME_PAGE_LOADED';
 export const UPDATE_WEATHER_LIST = 'UPDATE_WEATHER_LIST';
 export const UPDATE_USER_POSITION_FROM_SERVER = 'UPDATE_USER_POSITION_FROM_SERVER';
+export const HANDLE_ERROR = 'HANDLE_ERROR';
 
 export const welcomePageLoaded = createAction(WELCOME_PAGE_LOADED);
 export const updateWeatherList = createAction(UPDATE_WEATHER_LIST);
 export const updateUserPositionFromServer = createAction(UPDATE_USER_POSITION_FROM_SERVER);
+export const handleError = createAction(HANDLE_ERROR);
 
 export const getPrevPosition = () => (dispatch) => {
     AsyncStorage.getItem('@PositionStore:position').then(res => {
@@ -48,7 +50,7 @@ export const getLocation = () => (dispatch) => {
 
     let error = reject => err => {
         console.warn(`ERROR(${err.code}): ${err.message}`);
-        this.setState({error: `App can't get your position`});
+        dispatch(handleError(`App can't get your position`));
         reject(`ERROR(${err.code}): ${err.message}`);
     };
 

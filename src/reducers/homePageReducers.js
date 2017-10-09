@@ -1,19 +1,17 @@
+import Immutable from "immutable";
+import { Map, List } from "immutable";
+
 import {
     GET_PREV_POSITION,
     UPDATE_WEATHER_LIST,
     UPDATE_USER_POSITION_FROM_SERVER,
     WELCOME_PAGE_LOADED,
-    SET_COORDINATES,
+    HANDLE_ERROR
 } from '../actions/homePageActions';
 
 
-let initialState = Object.assign({
+let initialState = Immutable.fromJS({
     text: "",
-    coordinates: {
-        latitude: "",
-        longitude: "",
-        accuracy: ""
-    },
     error: "",
     weather: [
         {name: "Moskow", id: 524901, main: {}},
@@ -34,13 +32,15 @@ let initialState = Object.assign({
 const appReducer = (state = initialState, action) => {
     switch (action.type) {
         case GET_PREV_POSITION:
-            return Object.assign({}, state, {'prevPosition': action.payload});
+            return state.set('prevPosition', Immutable.fromJS(action.payload));
         case WELCOME_PAGE_LOADED:
-            return Object.assign({}, state, {'isLoaded': true});
+            return state.set('isLoaded', true);
         case UPDATE_USER_POSITION_FROM_SERVER:
-            return Object.assign({}, state, {'userPosition': action.payload});
+            return state.set('userPosition', Immutable.fromJS(action.payload));
+        case HANDLE_ERROR:
+            return state.set('error', action.payload);
         case UPDATE_WEATHER_LIST:
-            return Object.assign({}, state, {'weather': action.payload});
+            return state.set('weather', Immutable.fromJS(action.payload));
         default:
             return state;
     }

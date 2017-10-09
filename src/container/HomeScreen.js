@@ -125,26 +125,25 @@ class HomeScreen extends Component {
 
     componentDidMount() {
         this.props.getPrevPosition();
-        const listCitiesIdFromState = this.props.homePageStore.weather.map(city => city.id).join(',');
+        const listCitiesIdFromState = this.props.weather.map(city => city.get('id')).join(',');
         this.props.positionAndWeatherList(listCitiesIdFromState);
     }
 
     onPressItem = city => this.props.navigation.navigate('City', {city});
 
     onPressCurrentPosition = () => {
-        this.props.navigation.navigate('City', {city: this.props.homePageStore.userPosition});
+        this.props.navigation.navigate('City', {city: this.props.userPosition});
     };
 
     getFilteredCity = () => {
-        return [...this.props.homePageStore.weather].filter(e => {
-            return (this.state.text) ? e.name.toLocaleLowerCase().includes(this.state.text.toLocaleLowerCase()) : true;
-        })
+        return this.props.weather.filter(e => {
+            return (this.state.text) ? e.get('name').toLocaleLowerCase().includes(this.state.text.toLocaleLowerCase()) : true;
+        }).toJS();
     };
 
     render() {
         let page;
-        console.log(this.props.homePageStore);
-        if (this.props.homePageStore.isLoaded) {
+        if (this.props.isLoaded) {
             page = (
                 <Container style={styles.container}>
                     <Item>
@@ -152,11 +151,11 @@ class HomeScreen extends Component {
                         <Input placeholder="Sort by name" onChangeText={text => this.setState({text})}/>
                     </Item>
                     <Text style={styles.locationUserText} onPress={this.onPressCurrentPosition}>If your location
-                        is: {this.props.homePageStore.userPosition.name}? Click here!</Text>
+                        is: {this.props.userPosition.get('name')}? Click here!</Text>
                     <Text style={styles.simpleText} onPress={this.onPressCurrentPosition}>Your previous position
-                        was: {(this.props.homePageStore.prevPosition.name) ? this.props.homePageStore.prevPosition.name : ''}</Text>
-                    {this.props.homePageStore.error ? (
-                        <Text style={styles.simpleText}>Error position {this.props.homePageStore.error}</Text>
+                        was: {(this.props.prevPosition.get('name')) ? this.props.prevPosition.get('name') : ''}</Text>
+                    {this.props.error ? (
+                        <Text style={styles.simpleText}>Error position {this.props.error}</Text>
                     ) : null}
                     <Text style={styles.headerList}>
                         First on the list is the city closest to you:
@@ -192,8 +191,12 @@ class HomeScreen extends Component {
     }
 }
 
-const mapStateToProps = state => ({
-    homePageStore: state.app,
-});
+const mapStateToProps = state => {  return {
+    weather: state.app.get('weather'),
+    error: state.app.get('error'),
+    userPosition: state.app.get('userPosition'),
+    prevPosition: state.app.get('prevPosition'),
+    isLoaded: state.app.get('isLoaded'),
+}};
 
 export default connect(mapStateToProps, { welcomePageLoaded, getLocation, getWeatherCities, getPrevPosition, positionAndWeatherList })(HomeScreen);
