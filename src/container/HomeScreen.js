@@ -53,6 +53,24 @@ const styles = StyleSheet.create({
         paddingLeft: 25,
         paddingRight: 20,
         width: width,
+        color: 'white',
+        backgroundColor: '#62b1f5',
+    },
+    headerList: {
+        fontSize: 20,
+        paddingLeft: 25,
+        paddingRight: 20,
+        width: width,
+        color: 'white',
+        backgroundColor: '#037aff'
+    },
+    locationUserText: {
+        fontSize: 20,
+        paddingLeft: 25,
+        paddingRight: 20,
+        width: width,
+        color: 'white',
+        backgroundColor: '#5cb75d',
     },
     item: {
         padding: 10,
@@ -222,14 +240,14 @@ class HomeScreen extends Component {
                         <Icon name="ios-search"/>
                         <Input placeholder="Sort by name" onChangeText={text => this.setState({text})}/>
                     </Item>
-                    <Text style={styles.simpleText} onPress={this.onPressCurrentPosition}>Maybe your location
-                        is: {this.state.userPosition.name}</Text>
+                    <Text style={styles.locationUserText} onPress={this.onPressCurrentPosition}>If your location
+                        is: {this.state.userPosition.name}? Click here!</Text>
                     <Text style={styles.simpleText} onPress={this.onPressCurrentPosition}>Your previous position
                         was: {(this.state.prevPosition.name) ? this.state.prevPosition.name : ''}</Text>
                     {this.state.error ? (
                         <Text style={styles.simpleText}>Error position {this.state.error}</Text>
                     ) : null}
-                    <Text style={styles.simpleText}>
+                    <Text style={styles.headerList}>
                         First on the list is the city closest to you:
                     </Text>
                     <List
