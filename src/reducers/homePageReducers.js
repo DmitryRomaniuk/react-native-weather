@@ -11,7 +11,6 @@ import {
 
 
 let initialState = Immutable.fromJS({
-    text: "",
     error: "",
     weather: [
         {name: "Moskow", id: 524901, main: {}},

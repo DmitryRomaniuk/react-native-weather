@@ -13,12 +13,12 @@ export const updateUserPositionFromServer = createAction(UPDATE_USER_POSITION_FR
 export const handleError = createAction(HANDLE_ERROR);
 
 export const getPrevPosition = () => (dispatch) => {
-    AsyncStorage.getItem('@PositionStore:position').then(res => {
+    return AsyncStorage.getItem('@PositionStore:position').then(res => {
         if (res !== null) {
             try {
-                dispatch(createAction(GET_PREV_POSITION)(JSON.parse(res)));
+                return dispatch(createAction(GET_PREV_POSITION)(JSON.parse(res)));
             } catch (error) {
-                console.warn(`error JSON parse from AsyncStorage ${error}`);
+                return console.warn(`error JSON parse from AsyncStorage ${error}`);
             }
         }
     });
@@ -32,6 +32,7 @@ export const getLocation = () => (dispatch) => {
     };
 
     let success = resolve => pos => {
+        resolve(res);
         const crd = pos.coords;
         console.log("Your current position is:");
         console.log(`Latitude : ${crd.latitude}`);
