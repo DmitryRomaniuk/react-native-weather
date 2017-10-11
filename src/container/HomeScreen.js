@@ -126,7 +126,8 @@ class HomeScreen extends Component {
     componentDidMount() {
         this.props.getPrevPosition();
         const listCitiesIdFromState = this.props.weather.map(city => city.get('id')).join(',');
-        this.props.positionAndWeatherList(listCitiesIdFromState);
+        Promise.all([this.props.getLocation(), this.props.getWeatherCities(listFromState)])
+            .then(result => this.props.positionAndWeatherList(result))
     }
 
     onPressItem = city => this.props.navigation.navigate('City', {city});

@@ -71,9 +71,7 @@ export const getWeatherCities = (listFromState) => (dispatch) => {
             .catch(e => console.error(e));
     };
 
-export const positionAndWeatherList = (listFromState) => (dispatch) => {
-    Promise.all([getLocation()(dispatch), getWeatherCities(listFromState)(dispatch)])
-        .then(result => {
+export const positionAndWeatherList = (result) => (dispatch) => {
             let lat = result[0].coord.lat;
             let lon = result[0].coord.lon;
             let cityNearUser;
@@ -89,5 +87,4 @@ export const positionAndWeatherList = (listFromState) => (dispatch) => {
             newStateWeather.splice(cityNearUser, 1);
             newStateWeather.unshift(result[1][cityNearUser]);
             dispatch(updateWeatherList([...newStateWeather]));
-        })
 };

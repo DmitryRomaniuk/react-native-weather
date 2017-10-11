@@ -1,5 +1,5 @@
 import {createAction} from 'redux-actions';
-import { AsyncStorage as storage } from 'react-native';
+import {AsyncStorage as storage} from 'react-native';
 import MockAsyncStorage from 'mock-async-storage';
 import * as actions from '../homePageActions';
 import configureMockStore from 'redux-mock-store';
@@ -34,28 +34,21 @@ describe('test appReducer', () => {
             })
     });
 
-    // test('getPrevPosition action', () => {
-    //     const mock = () => {
-    //         const mockImpl = new MockAsyncStorage();
-    //         jest.mock('AsyncStorage', () => mockImpl);
-    //     };
-    //
-    //     mock();
-    //
-    //     const store = mockStore();
-    //     return storage.setItem('@PositionStore:position', {pos: 'pos'})
-    //         .then(value => {
-    //             return storage.getItem('@PositionStore:position');
-    //         })
-    //         .then(() => {
-    //             return store.dispatch(actions.getPrevPosition());
-    //         })
-    //         .then(value => {
-    //             expect(value).toEqual([
-    //                 {type: actions.UPDATE_WEATHER_LIST},
-    //             ])
-    //         })
-    // })
+    test('getPrevPosition action', () => {
+        const mock = () => {
+            const mockImpl = new MockAsyncStorage();
+            jest.mock('AsyncStorage', () => mockImpl);
+        };
+        mock();
+        const store = mockStore();
+        return storage.setItem('@PositionStore:position', JSON.stringify({pos: 'pos'}))
+            .then(() => {
+                return store.dispatch(actions.getPrevPosition());
+            })
+            .then(value => {
+                expect(value).toEqual({type: actions.GET_PREV_POSITION, "payload": {"pos": "pos"}})
+            })
+    });
 
     // test('getLocation action', () => {
     //     const mockData = [{
@@ -73,19 +66,14 @@ describe('test appReducer', () => {
     //                 {type: actions.updateUserPositionFromServer},
     //             ])
     //         })
-    // })
+    // });
 
-    // test('positionAndWeatherList action', () => {
-    //     jest.mock(actions.getLocation);
-    //     jest.mock(actions.getWeatherCities);
-    //     actions.getLocation.mockImplementation(() => () => ({coord: {lat:10, lon:10}}));
-    //     actions.getWeatherCities.mockImplementation(() => () => ([{city: {coord: {lat:20, lon:20}}}]));
-    //     const store = mockStore();
-    //     return store.dispatch(actions.getLocation())
-    //         .then(() => {
-    //             expect(store.getActions()).toEqual([
-    //                 {type: actions.updateWeatherList},
-    //             ])
-    //         })
-    // })
+    test('positionAndWeatherList action', () => {
+        const store = mockStore();
+        store.dispatch(actions.positionAndWeatherList([{coord: {lat: 10, lon: 10}}, [{coord: {lat: 30, lon: 30}},{coord: {lat: 20, lon: 20}}]]));
+        expect(store.getActions()).toEqual([{
+            "payload": [{"coord": {"lat": 20,"lon": 20,},},{"coord": {"lat": 30,"lon": 30,},}],
+            "type": "UPDATE_WEATHER_LIST",
+        },]);
+    })
 });
