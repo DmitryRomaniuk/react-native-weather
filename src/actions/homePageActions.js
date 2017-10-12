@@ -14,13 +14,7 @@ export const handleError = createAction(HANDLE_ERROR);
 
 export const getPrevPosition = () => (dispatch) => {
     return AsyncStorage.getItem('@PositionStore:position').then(res => {
-        if (res !== null) {
-            try {
-                return dispatch(createAction(GET_PREV_POSITION)(JSON.parse(res)));
-            } catch (error) {
-                return console.warn(`error JSON parse from AsyncStorage ${error}`);
-            }
-        }
+        return dispatch(createAction(GET_PREV_POSITION)(JSON.parse(res)));
     });
 };
 
@@ -32,12 +26,8 @@ export const getLocation = () => (dispatch) => {
     };
 
     let success = resolve => pos => {
-        resolve(res);
         const crd = pos.coords;
-        console.log("Your current position is:");
-        console.log(`Latitude : ${crd.latitude}`);
-        console.log(`Longitude: ${crd.longitude}`);
-        console.log(`More or less ${crd.accuracy} meters.`);
+        console.log(`Your current position is:\nLatitude : ${crd.latitude}\nLongitude : ${crd.longitude}\nMore or less ${crd.accuracy} meters.`);
         const url = `http://api.openweathermap.org/data/2.5/weather?lat=${crd.latitude}&lon=${crd.longitude}&appid=5fa0a1e7c0a14457e91deec1377620b6`;
         return fetch(url)
             .then(res => res.json())
@@ -45,8 +35,7 @@ export const getLocation = () => (dispatch) => {
                 dispatch(updateUserPositionFromServer(res));
                 return AsyncStorage.setItem('@PositionStore:position', JSON.stringify(res))
                     .then(() => {return resolve(res)});
-            })
-            .catch(e => console.error(e));
+            });
     };
 
     let error = reject => err => {
@@ -67,8 +56,7 @@ export const getWeatherCities = (listFromState) => (dispatch) => {
             .then(res => {
                 dispatch(updateWeatherList(res.list));
                 return res.list;
-            })
-            .catch(e => console.error(e));
+            });
     };
 
 export const positionAndWeatherList = (result) => (dispatch) => {

@@ -60,16 +60,12 @@ export default class CityWeather extends Component {
         StatusBar.setHidden(true);
     }
 
-    goBack = () => {
-        this.props.navigation.goBack();
-    };
-
     render() {
         return (
             <Container>
                 <Header searchBar rounded>
                     <Left>
-                        <Button transparent onPress={this.goBack}>
+                        <Button transparent onPress={this.props.navigation.goBack}>
                             <Icon name='arrow-back'/>
                         </Button>
                     </Left>
