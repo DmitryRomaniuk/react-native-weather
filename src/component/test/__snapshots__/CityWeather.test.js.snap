@@ -98,6 +98,7 @@ exports[`Test CityWeather component renders correctly 1`] = `
             allowFontScaling={false}
             disabled={false}
             ellipsizeMode="tail"
+            onPress={[Function]}
             style={
               Array [
                 Object {

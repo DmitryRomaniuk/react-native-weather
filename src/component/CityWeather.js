@@ -65,8 +65,8 @@ export default class CityWeather extends Component {
             <Container>
                 <Header searchBar rounded>
                     <Left>
-                        <Button transparent onPress={this.props.navigation.goBack}>
-                            <Icon name='arrow-back'/>
+                        <Button transparent>
+                            <Icon name='arrow-back' onPress={() => this.props.navigation.goBack()}/>
                         </Button>
                     </Left>
                     <Body>

@@ -126,14 +126,14 @@ class HomeScreen extends Component {
     componentDidMount() {
         this.props.getPrevPosition();
         const listCitiesIdFromState = this.props.weather.map(city => city.get('id')).join(',');
-        Promise.all([this.props.getLocation(), this.props.getWeatherCities(listFromState)])
+        Promise.all([this.props.getLocation(), this.props.getWeatherCities(listCitiesIdFromState)])
             .then(result => this.props.positionAndWeatherList(result))
     }
 
     onPressItem = city => this.props.navigation.navigate('City', {city});
 
     onPressCurrentPosition = () => {
-        this.props.navigation.navigate('City', {city: this.props.userPosition});
+        this.props.navigation.navigate('City', {city: this.props.userPosition.toJS()});
     };
 
     getFilteredCity = () => {
@@ -192,12 +192,12 @@ class HomeScreen extends Component {
     }
 }
 
-const mapStateToProps = state => {  return {
+const mapStateToProps = state => ({
     weather: state.app.get('weather'),
     error: state.app.get('error'),
     userPosition: state.app.get('userPosition'),
     prevPosition: state.app.get('prevPosition'),
     isLoaded: state.app.get('isLoaded'),
-}};
+});
 
 export default connect(mapStateToProps, { welcomePageLoaded, getLocation, getWeatherCities, getPrevPosition, positionAndWeatherList })(HomeScreen);
